@@ -7,7 +7,7 @@ function NotFound() {
       <Link to="/">GO HOME</Link>
       <p> test</p>
     </>
-  );
+  )
 }
 
-export default NotFound;
+export default NotFound
