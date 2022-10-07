@@ -14,5 +14,6 @@ This setup includes:
 
 # To Run
 First install node and npm
+install prettier and eslint plugins in vscode (optional but you should pls)
 `npm install`
 `npm run dev`
