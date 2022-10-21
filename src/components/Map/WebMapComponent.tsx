@@ -7,6 +7,7 @@ import RouteLayer from '@arcgis/core/layers/RouteLayer'
 
 import './index.css'
 
+// TODO CREATE THIS AS A CONTEXT
 export default function WebMapComponent() {
   const mapDiv = useRef(null)
 
