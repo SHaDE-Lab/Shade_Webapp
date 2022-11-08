@@ -5,8 +5,10 @@ import Search from '@arcgis/core/widgets/Search'
 import Directions from '@arcgis/core/widgets/Directions'
 import RouteLayer from '@arcgis/core/layers/RouteLayer'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
+import LayerSearchSource from '@arcgis/core/widgets/Search/LayerSearchSource'
 
 import './index.css'
+
 
 // TODO CREATE THIS AS A CONTEXT
 export default function WebMapComponent() {
@@ -30,8 +32,35 @@ export default function WebMapComponent() {
         map: webmap,
       })
 
+      //Adding Buildings Layer
+
+      const buildings = new FeatureLayer({
+        url: "https://gis.m.asu.edu/server/rest/services/Campus/CampusBuilding/MapServer",
+        //List of all Attributes contained in the building features
+        outFields: ["OBJECTID","BLDG_NUMBER","BLDG_NAME","BLDG_CODE","BLDG_CITY","BLDG_STATE","BLDG_ZIP","Description"
+        ,"Type","map_name","Image","BLDG_ADDRESS","Shape","Shape.STArea()","Shape.STLength()"],
+        popupTemplate: {
+          "title": "{BLDG_NAME} ({BLDG_CODE})",
+          "content": "<b>{BLDG_ADDRESS}</b><br><img src=\"{Image}\" alt=\"{Image of {BLDG_NAME}\"><br>{Description}<br><br><b>Building Number:</b> {BLDG_NUMBER}"
+        }
+      })
+      webmap.add(buildings)
+
+      const searchSource = new LayerSearchSource({
+        layer: buildings,
+        searchFields: ["*"],
+        displayField: "{BLDG_NAME} ({BLDG_CODE})",
+        exactMatch: false,
+        outFields: ["*"],
+        name: "ASU Buildings",
+        placeholder: "example: 3708"
+      })
+
       const searchWidget = new Search({
-        view,
+        view: view,
+        allPlaceholder: "ASU Buildings",
+        includeDefaultSources: false,
+        sources: [searchSource]
       })
 
       const routeLayer = new RouteLayer()
@@ -41,20 +70,7 @@ export default function WebMapComponent() {
         view,
       })
 
-      //Adding Buildings Layer
-      const buildingPopup = {
-        "title": "{BLDG_NAME} ({BLDG_CODE})",
-        "content": "<b>{BLDG_ADDRESS}</b><br><img src=\"{Image}\" alt=\"{Image of {BLDG_NAME}\"><br>{Description}<br><br><b>Building Number:</b> {BLDG_NUMBER}"
-      }
-    
-      const buildings = new FeatureLayer({
-        url: "https://gis.m.asu.edu/server/rest/services/Campus/CampusBuilding/MapServer",
-        //List of all Attributes contained in the building features
-        outFields: ["OBJECTID","BLDG_NUMBER","BLDG_NAME","BLDG_CODE","BLDG_CITY","BLDG_STATE","BLDG_ZIP","Description"
-        ,"Type","map_name","Image","BLDG_ADDRESS","Shape","Shape.STArea()","Shape.STLength()"],
-        popupTemplate: buildingPopup
-      })
-      webmap.add(buildings)
+      
 
       //Query Buildings (For )
       view.on("click", function(event){
