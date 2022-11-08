@@ -56,7 +56,7 @@ export default function WebMapComponent() {
       })
       webmap.add(buildings)
 
-      //Query Buildings
+      //Query Buildings (For )
       view.on("click", function(event){
         let query = buildings.createQuery();
         query.geometry = view.toMap(event);  // the point location of the pointer
@@ -71,7 +71,7 @@ export default function WebMapComponent() {
             console.log("Query: ")
             //As of right now, this only returns the number of features in that proximity
             //Need to derive the information from the buildings
-            console.log(response.features.length)
+            console.log(response.fields.length)
           });
       });
 
