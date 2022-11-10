@@ -6,7 +6,6 @@ import Directions from '@arcgis/core/widgets/Directions'
 import RouteLayer from '@arcgis/core/layers/RouteLayer'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import LayerSearchSource from '@arcgis/core/widgets/Search/LayerSearchSource'
-import MapImageLayer from "@arcgis/core/layers/MapImageLayer";
 
 import './index.css'
 
