@@ -6,6 +6,7 @@ import Directions from '@arcgis/core/widgets/Directions'
 import RouteLayer from '@arcgis/core/layers/RouteLayer'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import LayerSearchSource from '@arcgis/core/widgets/Search/LayerSearchSource'
+import MapImageLayer from "@arcgis/core/layers/MapImageLayer";
 
 import './index.css'
 
@@ -35,7 +36,7 @@ export default function WebMapComponent() {
       //Adding Buildings Layer
 
       const buildings = new FeatureLayer({
-        url: "https://gis.m.asu.edu/server/rest/services/Campus/CampusBuilding/MapServer",
+        url: "https://gis.m.asu.edu/server/rest/services/Campus/CampusBuilding/MapServer/0",
         //List of all Attributes contained in the building features
         outFields: ["OBJECTID","BLDG_NUMBER","BLDG_NAME","BLDG_CODE","BLDG_CITY","BLDG_STATE","BLDG_ZIP","Description"
         ,"Type","map_name","Image","BLDG_ADDRESS","Shape","Shape.STArea()","Shape.STLength()"],
@@ -48,18 +49,23 @@ export default function WebMapComponent() {
 
       const searchSource = new LayerSearchSource({
         layer: buildings,
-        searchFields: ["*"],
-        displayField: "{BLDG_NAME} ({BLDG_CODE})",
+        searchFields: ["BLDG_CODE", "BLDG_NAME", "BLDG_NUMBER"],
+        //suggestionTemplate: "{Name}, Party: {Party}",
+        suggestionTemplate: "{BLDG_NAME} ({BLDG_CODE})",
         exactMatch: false,
         outFields: ["*"],
         name: "ASU Buildings",
-        placeholder: "example: 3708"
+        placeholder: "example: COOR"
       })
 
       const searchWidget = new Search({
         view: view,
         allPlaceholder: "ASU Buildings",
         includeDefaultSources: false,
+        popupEnabled: true,
+        suggestionsEnabled: true,
+        maxSuggestions: 5,
+        minSuggestCharacters: 1,
         sources: [searchSource]
       })
 
