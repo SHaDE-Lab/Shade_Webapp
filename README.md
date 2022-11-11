@@ -1,12 +1,13 @@
 # Shade_Webapp
 
-```cd backend 
+```
+cd backend 
 npm i 
 
 cd ./frontend
 npm i
 
-cd ./backend
+cd ./
 npm i 
 npm run dev
 ```
