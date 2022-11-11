@@ -1,6 +1,6 @@
 # Shade_Webapp
 
-``cd backend 
+```cd backend 
 npm i 
 
 cd ./frontend
