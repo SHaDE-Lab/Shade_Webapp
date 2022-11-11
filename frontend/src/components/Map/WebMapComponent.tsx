@@ -5,14 +5,15 @@ import Search from '@arcgis/core/widgets/Search'
 import Directions from '@arcgis/core/widgets/Directions'
 import RouteLayer from '@arcgis/core/layers/RouteLayer'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
+import esriConfig from "@arcgis/core/config";
 
 import './index.css'
 
 // TODO CREATE THIS AS A CONTEXT
 export default function WebMapComponent() {
   const mapDiv = useRef(null)
-
   useEffect(() => {
+    esriConfig.apiKey = import.meta.env.VITE_ARC_GIS_API_KEY
     if (mapDiv.current) {
       const webmap = new WebMap({
         portalItem: {
@@ -38,9 +39,14 @@ export default function WebMapComponent() {
 
       const directions = new Directions({
         layer: routeLayer,
-        view,
+        view: view,
+        visibleElements: {
+          layerDetails: false,
+          saveAsButton: false,
+          saveButton: false, 
+        }
       })
-
+      webmap.add(routeLayer)
       //Adding Buildings Layer
       const buildingPopup = {
         "title": "{BLDG_NAME} ({BLDG_CODE})",
