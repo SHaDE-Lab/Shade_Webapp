@@ -6,7 +6,7 @@ npm i
 cd ./frontend
 npm i
 
-cd ./
+cd ./backend
 npm i 
 npm run dev
 ```
