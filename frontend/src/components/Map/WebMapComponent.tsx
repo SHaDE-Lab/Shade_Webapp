@@ -46,7 +46,6 @@ export default function WebMapComponent() {
       const searchSource = new LayerSearchSource({
         layer: buildings,
         searchFields: ["BLDG_CODE", "BLDG_NAME", "BLDG_NUMBER"],
-        //suggestionTemplate: "{Name}, Party: {Party}",
         suggestionTemplate: "{BLDG_NAME} ({BLDG_CODE})",
         exactMatch: false,
         outFields: ["*"],
@@ -55,7 +54,7 @@ export default function WebMapComponent() {
       })
       
       const searchWidget = new Search({
-        view: view,
+        view,
         allPlaceholder: "ASU Buildings",
         includeDefaultSources: false,
         popupEnabled: true,
