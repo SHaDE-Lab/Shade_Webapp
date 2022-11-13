@@ -1,5 +1,9 @@
 {
     "scripts": {
-      "dev": "concurrently \"cd ./backend && npm run dev\" \"cd ./frontend && npm run dev\""
+        "dev": "concurrently \"cd ./backend && npm run dev\" \"cd ./frontend && npm run dev\""
+    },
+    "dependencies": {
+        "concurrently": "^7.5.0",
+        "ts-node": "^10.9.1"
     }
-  }
+}
