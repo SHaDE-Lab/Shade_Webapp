@@ -1,6 +1,6 @@
 import express from "express";
 import { Request, Response } from "express";
-const PORT = 5000,
+const PORT = 8000,
   app = express();
 
 app.get("/api/v1", (req: Request, res: Response) => {

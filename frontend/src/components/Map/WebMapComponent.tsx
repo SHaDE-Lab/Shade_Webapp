@@ -1,38 +1,58 @@
 import React, { useRef, useEffect } from 'react'
-import MapView from '@arcgis/core/views/MapView'
-import WebMap from '@arcgis/core/WebMap'
 import Search from '@arcgis/core/widgets/Search'
 import Directions from '@arcgis/core/widgets/Directions'
 import RouteLayer from '@arcgis/core/layers/RouteLayer'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import esriConfig from "@arcgis/core/config";
+import LayerSearchSource from '@arcgis/core/widgets/Search/LayerSearchSource'
+import { useMap } from '../../context/MapContext'
 
 import './index.css'
 
 // TODO CREATE THIS AS A CONTEXT
 export default function WebMapComponent() {
   const mapDiv = useRef(null)
+  const view = useMap()
+
   useEffect(() => {
     esriConfig.apiKey = import.meta.env.VITE_ARC_GIS_API_KEY
     if (mapDiv.current) {
-      const webmap = new WebMap({
-        portalItem: {
-          //Default basemap
-          //id: 'aa1d3f80270146208328cf66d022e09c',
+      view.container = mapDiv.current
 
-          //Plain Basemap
-          id: '00c8181753cd4673810a1ede1f52a922'
-        },
-        
+      const buildings = new FeatureLayer({
+        url: "https://gis.m.asu.edu/server/rest/services/Campus/CampusBuilding/MapServer/0",
+        //List of all Attributes contained in the building features
+        outFields: ["OBJECTID","BLDG_NUMBER","BLDG_NAME","BLDG_CODE","BLDG_CITY","BLDG_STATE","BLDG_ZIP","Description"
+        ,"Type","map_name","Image","BLDG_ADDRESS","Shape","Shape.STArea()","Shape.STLength()"],
+        popupTemplate: {
+          "title": "{BLDG_NAME} ({BLDG_CODE})",
+          "content": "<b>{BLDG_ADDRESS}</b><br><img src=\"{Image}\" alt=\"{Image of {BLDG_NAME}\"><br>{Description}<br><br><b>Building Number:</b> {BLDG_NUMBER}"
+        }
       })
 
-      const view = new MapView({
-        container: mapDiv.current,
-        map: webmap,
-      })
+      // if need access to base map use view.map
+      view.map.add(buildings)
 
+      const searchSource = new LayerSearchSource({
+        layer: buildings,
+        searchFields: ["BLDG_CODE", "BLDG_NAME", "BLDG_NUMBER"],
+        suggestionTemplate: "{BLDG_NAME} ({BLDG_CODE})",
+        exactMatch: false,
+        outFields: ["*"],
+        name: "ASU Buildings",
+        placeholder: "example: COOR"
+      })
+      
       const searchWidget = new Search({
         view,
+        allPlaceholder: "ASU Buildings",
+        includeDefaultSources: false,
+        popupEnabled: true,
+        suggestionsEnabled: true,
+        maxSuggestions: 5,
+        minSuggestCharacters: 1,
+        sources: [searchSource],
+        id: 'searchWidget'
       })
 
       const routeLayer = new RouteLayer()
@@ -46,22 +66,9 @@ export default function WebMapComponent() {
           saveButton: false, 
         }
       })
-      webmap.add(routeLayer)
-      //Adding Buildings Layer
-      const buildingPopup = {
-        "title": "{BLDG_NAME} ({BLDG_CODE})",
-        "content": "<b>{BLDG_ADDRESS}</b><br><img src=\"{Image}\" alt=\"{Image of {BLDG_NAME}\"><br>{Description}<br><br><b>Building Number:</b> {BLDG_NUMBER}"
-      }
-    
-      const buildings = new FeatureLayer({
-        url: "https://gis.m.asu.edu/server/rest/services/Campus/CampusBuilding/MapServer",
-        //List of all Attributes contained in the building features
-        outFields: ["OBJECTID","BLDG_NUMBER","BLDG_NAME","BLDG_CODE","BLDG_CITY","BLDG_STATE","BLDG_ZIP","Description"
-        ,"Type","map_name","Image","BLDG_ADDRESS","Shape","Shape.STArea()","Shape.STLength()"],
-        popupTemplate: buildingPopup
-      })
-      webmap.add(buildings)
 
+      view.map.add(routeLayer)
+      
       //Query Buildings (For )
       view.on("click", function(event){
         let query = buildings.createQuery();
@@ -81,19 +88,18 @@ export default function WebMapComponent() {
           });
       });
 
-      // Add the widget to the top-right corner of the view
-      view.ui.add(searchWidget, 'top-right')
-      view.ui.add(directions, 'top-right')
-      
-      // bonus - how many bookmarks in the webmap?
-      webmap.when(() => {
+      // Add the widgets to the top-right corner of the view
+      if (!view.ui.find('searchWidget')) view.ui.add(searchWidget, 'top-right')
+      if (!view.ui.find('directionsWidget'))view.ui.add(directions, 'top-right')
+
+      view.when(() => {
         view.goTo({
           center: [-111.93, 33.419],
           zoom: 15
         })
       })
     }
-  }, [])
+  }, [view])
 
   return (
     <div

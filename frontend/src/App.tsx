@@ -5,6 +5,7 @@ import Header from './components/Header/Header'
 import InfoPage from './pages/InfoPage'
 import MapPage from './pages/MapPage'
 import NotFound from './pages/NotFound'
+import { MapProvider } from './context/MapContext'
 
 export function App() {
   // This is a test function that communica
@@ -34,8 +35,10 @@ export function App() {
 export function WrappedApp() {
   return (
     <BrowserRouter>
-      <Header />
-      <App />
+      <MapProvider>
+        <Header />
+        <App />
+      </MapProvider>
     </BrowserRouter>
   )
 }
