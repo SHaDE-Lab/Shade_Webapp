@@ -1,19 +1,13 @@
-## [vite](https://vitejs.dev/) + [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/) Starter
+# Shade_Webapp
 
-This setup includes:
-* [vite](https://vitejs.dev/)
-* [eslint](https://eslint.org/), [typescript-eslint](https://typescript-eslint.io/), [eslint-airbnb-config](https://github.com/airbnb/javascript), [prettier](https://prettier.io/)
-* [vitest](https://vitest.dev/), [jsdom](https://github.com/jsdom/jsdom), [@testing-library](https://testing-library.com/)
-* [react-router v6](https://reactrouter.com/en/main)
+```
+cd backend 
+npm i 
 
-# References
+cd ./frontend
+npm i
 
-* https://markus.oberlehner.net/blog/using-testing-library-jest-dom-with-vitest/
-* https://testing-library.com/docs/queries/about#priority
-* https://kentcdodds.com/blog/common-mistakes-with-react-testing-library
-
-# To Run
-First install node and npm
-install prettier and eslint plugins in vscode (optional but you should pls)
-`npm install`
-`npm run dev`
+cd ./
+npm i 
+npm run dev
+```
