@@ -6,13 +6,14 @@ import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import esriConfig from "@arcgis/core/config";
 import LayerSearchSource from '@arcgis/core/widgets/Search/LayerSearchSource'
 import { useMap } from '../../context/MapContext'
+import Collection from "@arcgis/core/core/Collection";
 
 import './index.css'
 
-// TODO CREATE THIS AS A CONTEXT
 export default function WebMapComponent() {
   const mapDiv = useRef(null)
   const view = useMap()
+
 
   useEffect(() => {
     esriConfig.apiKey = import.meta.env.VITE_ARC_GIS_API_KEY
@@ -28,17 +29,17 @@ export default function WebMapComponent() {
           "title": "{BLDG_NAME} ({BLDG_CODE})",
           "content": "<b>{BLDG_ADDRESS}</b><br><img src=\"{Image}\" alt=\"{Image of {BLDG_NAME}\"><br>{Description}<br><br><b>Building Number:</b> {BLDG_NUMBER}"
         }
-      })
-
-      // if need access to base map use view.map
+      })    
+      
+      //map.add(layer);
       view.map.add(buildings)
-
+      
       const searchSource = new LayerSearchSource({
         layer: buildings,
         searchFields: ["BLDG_CODE", "BLDG_NAME", "BLDG_NUMBER"],
         suggestionTemplate: "{BLDG_NAME} ({BLDG_CODE})",
         exactMatch: false,
-        outFields: ["*"],
+        outFields: ["*", ],
         name: "ASU Buildings",
         placeholder: "example: COOR"
       })
@@ -64,11 +65,16 @@ export default function WebMapComponent() {
           layerDetails: false,
           saveAsButton: false,
           saveButton: false, 
-        }
+        },
+        searchProperties: {
+          sources: new Collection([searchSource]),
+          includeDefaultSources: false
+        },
+        id: 'directionsWidget'
       })
 
       view.map.add(routeLayer)
-      
+
       //Query Buildings (For )
       view.on("click", function(event){
         let query = buildings.createQuery();
