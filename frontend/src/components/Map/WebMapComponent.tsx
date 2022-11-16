@@ -30,11 +30,22 @@ export default function WebMapComponent() {
           "content": "<b>{BLDG_ADDRESS}</b><br><img src=\"{Image}\" alt=\"{Image of {BLDG_NAME}\"><br>{Description}<br><br><b>Building Number:</b> {BLDG_NUMBER}"
         }
       })    
-      
       //map.add(layer);
       view.map.add(buildings)
       
-      const searchSource = new LayerSearchSource({
+
+      const doors = new FeatureLayer({
+        url: "https://gis.m.asu.edu/server/rest/services/Campus/CampusAccessibility/MapServer/0",
+        outFields: ["OBJECTID","buildingname","BLDG_NUMBER"],
+        opacity: 0,
+        popupTemplate: {
+          "title": "{buildingname} ({BLDG_CODE})",
+        }
+      })
+      view.map.add(doors)
+
+      /* BUILDING SEARCH */
+      const searchWidgetSource = new LayerSearchSource({
         layer: buildings,
         searchFields: ["BLDG_CODE", "BLDG_NAME", "BLDG_NUMBER"],
         suggestionTemplate: "{BLDG_NAME} ({BLDG_CODE})",
@@ -43,7 +54,7 @@ export default function WebMapComponent() {
         name: "ASU Buildings",
         placeholder: "example: COOR"
       })
-      
+
       const searchWidget = new Search({
         view,
         allPlaceholder: "ASU Buildings",
@@ -52,11 +63,25 @@ export default function WebMapComponent() {
         suggestionsEnabled: true,
         maxSuggestions: 5,
         minSuggestCharacters: 1,
-        sources: [searchSource],
+        sources: [searchWidgetSource],
         id: 'searchWidget'
       })
 
+
+      /* ROUTING */
       const routeLayer = new RouteLayer()
+
+      const directionsSearchSource = new LayerSearchSource({
+        layer: doors,
+        searchFields: ["buildingname", "BLDG_NUMBER"],
+        suggestionTemplate: "{buildingname}",
+        exactMatch: false,
+        suggestionsEnabled: true,
+        maxSuggestions: 5,
+        outFields: ["*"],
+        name: "ASU Building Doors",
+        placeholder: "example: COOR"
+      })
 
       const directions = new Directions({
         layer: routeLayer,
@@ -67,12 +92,14 @@ export default function WebMapComponent() {
           saveButton: false, 
         },
         searchProperties: {
-          sources: new Collection([searchSource]),
-          includeDefaultSources: false
+          sources: new Collection([directionsSearchSource]),
+          includeDefaultSources: false,
+          suggestionsEnabled: true,
+          maxSuggestions: 5,
+          minSuggestCharacters: 1
         },
         id: 'directionsWidget'
       })
-
       view.map.add(routeLayer)
 
       //Query Buildings (For )

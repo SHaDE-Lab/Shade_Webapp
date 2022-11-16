@@ -4,6 +4,7 @@
     },
     "dependencies": {
         "concurrently": "^7.5.0",
+        "global": "^4.4.0",
         "ts-node": "^10.9.1"
     }
 }
