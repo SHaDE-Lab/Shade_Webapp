@@ -149,9 +149,12 @@ export default function WebMapComponent() {
 
           /* --------------- CALL API HERE -------------------- */
           // 127.0.0.1:8000/api/route/{"startPoint": [3.3, 5.5], "endPoint": [4.4, 6.6], "dateTime": "hello"}
-          var url = "127.0.0.1:8000/api/route/{\"startPoint\": [" + startLat + ", " + startLong + "], \"endPoint\": [" + endLat + ", " + endLong + "], \"dateTime\": " + date + "}"
+          var url = "http://127.0.0.1:8000/api/route/{\"startPoint\": [" + startLat + ", " + startLong + "], \"endPoint\": [" + endLat + ", " + endLong + "], \"dateTime\": \"" + date + "\"}"
 
-          var response = await fetch(url)
+          var response = await fetch(url,{
+            method: 'GET',
+            mode: 'cors', // Add CORS header
+          })
           var pointCoords = await response.json()
 
           //Converts to points
