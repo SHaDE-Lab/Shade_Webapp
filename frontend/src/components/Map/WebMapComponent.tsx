@@ -132,70 +132,23 @@ export default function WebMapComponent() {
 
       var pathPoints: Array<Point> = []
       var pathPointsGrahics: Array<Graphic> = []
+      var routeOn = false
    
       const buttonMenuItem1 = new ButtonMenuItem ({
         label: "Draw Route to Map",
         iconClass: "Icon font name, if applicable",
-        clickFunction: async function () {
-
-          deleteRoute() //clears route first
-
-          //Determines Start and End Points
-          var startLat = startPoint.latitude
-          var startLong = startPoint.longitude
-
-          var endLat = endPoint.latitude
-          var endLong = endPoint.longitude
-
-          //Determines Date and Time
-          var thumbPosition = timeSlider.timeExtent.end
-
-          var date = thumbPosition.getFullYear() + '-' + (thumbPosition.getMonth() + 1)  + '-' + thumbPosition.getDate() + '-' + thumbPosition.getHours() + '00'
-          
-          /* --------------- CALL API HERE -------------------- */
-          // 127.0.0.1:8000/api/route/{"startPoint": [3.3, 5.5], "endPoint": [4.4, 6.6], "dateTime": "hello"}
-          var url = "http://127.0.0.1:8000/api/route/{\"startPoint\": [" + startLat + ", " + startLong + "], \"endPoint\": [" + endLat + ", " + endLong + "], \"dateTime\": \"" + date + "\"}"
-
-          var response = await fetch(url,{
-            method: 'GET',
-            mode: 'cors', // Add CORS header
-          })
-          var pointCoords = await response.json()
-
-          //Converts to points
-          pathPoints = await pointCoords.map((coord:number[])=>{
-            return new Point({
-              longitude: coord[0],
-              latitude: coord[1],
-              spatialReference:{
-                wkt: "PROJCS[\"NAD_1983_UTM_Zone_12N\",GEOGCS[\"GCS_North_American_1983\",DATUM[\"D_North_American_1983\",SPHEROID[\"GRS_1980\",6378137.0,298.257222101]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"False_Easting\",500000.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",-111.0],PARAMETER[\"Scale_Factor\",0.9996],PARAMETER[\"Latitude_Of_Origin\",0.0],UNIT[\"Meter\",1.0]]"
-              }
-          })
-          })
-
-          //Draws points
-          var counter = 0
-          pathPoints.map((point)=>{
-            if(counter % 10 == 0) { //Only draw every 10 points
-              const pointGraphic = new Graphic({
-                geometry: point,
-                symbol: routeMarkerSymbol,
-              })
-
-              graphicsLayer.add(pointGraphic)
-              pathPointsGrahics.push(pointGraphic)
-
-            }
-            counter++
-
-          })
+        clickFunction: function() {
+          routeOn = true
+          makeRoute()
         }
+
       })
 
       const buttonMenuItem2 = new ButtonMenuItem ({
         label: "Delete Route",
         iconClass: "Icon font name, if applicable",
         clickFunction: function () {
+          routeOn = false
           deleteRoute()
         }
       })
@@ -205,6 +158,60 @@ export default function WebMapComponent() {
           graphicsLayer.remove(pointGraphic)
         })
 
+      }
+
+      async function makeRoute() {
+        deleteRoute() //clears route first
+
+        //Determines Start and End Points
+        var startLat = startPoint.latitude
+        var startLong = startPoint.longitude
+
+        var endLat = endPoint.latitude
+        var endLong = endPoint.longitude
+
+        //Determines Date and Time
+        var thumbPosition = timeSlider.timeExtent.end
+
+        var date = thumbPosition.getFullYear() + '-' + (thumbPosition.getMonth() + 1)  + '-' + thumbPosition.getDate() + '-' + thumbPosition.getHours() + '00'
+        
+        /* --------------- CALL API HERE -------------------- */
+        // 127.0.0.1:8000/api/route/{"startPoint": [3.3, 5.5], "endPoint": [4.4, 6.6], "dateTime": "hello"}
+        var url = "http://127.0.0.1:8000/api/route/{\"startPoint\": [" + startLat + ", " + startLong + "], \"endPoint\": [" + endLat + ", " + endLong + "], \"dateTime\": \"" + date + "\"}"
+
+        var response = await fetch(url,{
+          method: 'GET',
+          mode: 'cors', // Add CORS header
+        })
+        var pointCoords = await response.json()
+
+        //Converts to points
+        pathPoints = await pointCoords.map((coord:number[])=>{
+          return new Point({
+            longitude: coord[0],
+            latitude: coord[1],
+            spatialReference:{
+              wkt: "PROJCS[\"NAD_1983_UTM_Zone_12N\",GEOGCS[\"GCS_North_American_1983\",DATUM[\"D_North_American_1983\",SPHEROID[\"GRS_1980\",6378137.0,298.257222101]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"False_Easting\",500000.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",-111.0],PARAMETER[\"Scale_Factor\",0.9996],PARAMETER[\"Latitude_Of_Origin\",0.0],UNIT[\"Meter\",1.0]]"
+            }
+          })
+        })
+
+          //Draws points
+        var counter = 0
+        pathPoints.map((point)=>{
+          if(counter % 10 == 0) { //Only draw every 10 points
+            const pointGraphic = new Graphic({
+              geometry: point,
+              symbol: routeMarkerSymbol,
+              })
+
+              graphicsLayer.add(pointGraphic)
+              pathPointsGrahics.push(pointGraphic)
+
+            }
+            counter++
+
+          })
       }
 
       const buttonMenu = new ButtonMenu ({
@@ -259,6 +266,12 @@ export default function WebMapComponent() {
         point.latitude = latitude
 
         graphicsLayer.add(graphic)
+
+        if (routeOn) { //Remake route
+          deleteRoute()
+          makeRoute()
+        }
+
       }
 
       // Query Buildings (For )
