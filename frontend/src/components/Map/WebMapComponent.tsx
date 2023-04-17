@@ -1,23 +1,19 @@
 import React, { useRef, useEffect } from 'react'
+import { useMap } from '../../context/MapContext'
 import Search from '@arcgis/core/widgets/Search'
-import Directions from '@arcgis/core/widgets/Directions'
-import RouteLayer from '@arcgis/core/layers/RouteLayer'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
 import esriConfig from '@arcgis/core/config'
 import LayerSearchSource from '@arcgis/core/widgets/Search/LayerSearchSource'
-import Collection from '@arcgis/core/core/Collection'
-import { useMap } from '../../context/MapContext'
 import Graphic from '@arcgis/core/Graphic'
 import Point from '@arcgis/core/geometry/Point'
 import ButtonMenu from '@arcgis/core/widgets/FeatureTable/Grid/support/ButtonMenu'
 import ButtonMenuItem from '@arcgis/core/widgets/FeatureTable/Grid/support/ButtonMenuItem'
 import TimeSlider from '@arcgis/core/widgets/TimeSlider'
 import Track from '@arcgis/core/widgets/Track'
-
+import TimeInterval from '@arcgis/core/TimeInterval'
 
 import './index.css'
-import TimeInterval from '@arcgis/core/TimeInterval'
 
 export default function WebMapComponent() {
   const mapDiv = useRef(null)
@@ -190,9 +186,9 @@ export default function WebMapComponent() {
           return new Point({
             longitude: coord[0],
             latitude: coord[1],
-            spatialReference:{
-              wkt: "PROJCS[\"NAD_1983_UTM_Zone_12N\",GEOGCS[\"GCS_North_American_1983\",DATUM[\"D_North_American_1983\",SPHEROID[\"GRS_1980\",6378137.0,298.257222101]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"False_Easting\",500000.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",-111.0],PARAMETER[\"Scale_Factor\",0.9996],PARAMETER[\"Latitude_Of_Origin\",0.0],UNIT[\"Meter\",1.0]]"
-            }
+            // spatialReference:{
+            //   wkt: "PROJCS[\"NAD_1983_UTM_Zone_12N\",GEOGCS[\"GCS_North_American_1983\",DATUM[\"D_North_American_1983\",SPHEROID[\"GRS_1980\",6378137.0,298.257222101]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"False_Easting\",500000.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",-111.0],PARAMETER[\"Scale_Factor\",0.9996],PARAMETER[\"Latitude_Of_Origin\",0.0],UNIT[\"Meter\",1.0]]"
+            // }
           })
         })
 
@@ -252,6 +248,14 @@ export default function WebMapComponent() {
         changeLocationPointer(startPointGraphic, startPoint, longitude, latitude)
       });
 
+      searchWidgetEnd.on("search-clear", (event) =>{
+        graphicsLayer.remove(endPointGraphic)
+        deleteRoute()
+      })
+      searchWidgetStart.on("search-clear", (event) =>{
+        graphicsLayer.remove(startPointGraphic)
+        deleteRoute()
+      })
       searchWidgetEnd.on("select-result", function(event){
         var longitude = event.result.extent.center.longitude
         var latitude = event.result.extent.center.latitude
@@ -329,7 +333,7 @@ export default function WebMapComponent() {
         view: view,
         id: "tracker"
       });
-      view.ui.add(tracker, 'top-left')//For some reason leaving this fixes formatting
+      //view.ui.add(tracker, 'top-left')//For some reason leaving this fixes formatting
 
       // Add the widgets to the top-right corner of the view
       if (!view.ui.find('searchWidgetStart')) view.ui.add(searchWidgetStart, 'top-right')
@@ -337,7 +341,7 @@ export default function WebMapComponent() {
       if (!view.ui.find('tracker')) view.ui.add(tracker, 'top-left')
       if (!view.ui.find('buttonMenu')) view.ui.add(buttonMenu, 'top-left')
       if (!view.ui.find('timeSlider')) view.ui.add(timeSlider, 'bottom-right')
-
+      view.ui.add(tracker, 'top-left')
       view.when(() => {
         view.goTo({
           center: [-111.93, 33.419],
