@@ -169,7 +169,7 @@ export default function WebMapComponent() {
         //Determines Date and Time
         var thumbPosition = timeSlider.timeExtent.end
 
-        var date = thumbPosition.getFullYear() + '-' + (thumbPosition.getMonth() + 1)  + '-' + thumbPosition.getDate() + '-' + thumbPosition.getHours() + '00'
+        var date = thumbPosition.getFullYear() + '-' + (thumbPosition.getMonth() + 1)  + '-' + thumbPosition.getDate() + '-' + thumbPosition.getHours()
         
         /* --------------- CALL API HERE -------------------- */
         // 127.0.0.1:8000/api/route/{"startPoint": [3.3, 5.5], "endPoint": [4.4, 6.6], "dateTime": "hello"}
