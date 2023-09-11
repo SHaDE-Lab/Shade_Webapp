@@ -8,20 +8,7 @@ import NotFound from './pages/NotFound'
 import { MapProvider } from './context/MapContext'
 
 export function App() {
-  // This is a test function that communica
-  const [data, setData] = useState()
-  const urlWithProxy = '/api/v1'
-
-  // This is a test function that works as an event handler,
-  // retrieving data from the backend using the test endpoint.
-  function getDataFromServer() {
-    axios
-      .get(urlWithProxy)
-      .then((res) => setData(res.data))
-      .catch((err) => {
-        console.log(err.response.data)
-      })
-  }
+  
   return (
     <Routes>
       <Route path="/" element={<MapPage />} />
