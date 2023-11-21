@@ -127,9 +127,7 @@ export default function WebMapComponent() {
             width: 0.1
         }
      };
-
-      var pathPoints: Array<Point> = []
-      var pathPointsGrahics: Array<Graphic> = []
+      var path: Graphic 
       var routeOn = false
    
       const buttonMenuItem1 = new ButtonMenuItem ({
@@ -152,10 +150,7 @@ export default function WebMapComponent() {
       })
 
       function deleteRoute(){
-        pathPointsGrahics.map((pointGraphic)=>{
-          graphicsLayer.remove(pointGraphic)
-        })
-
+        graphicsLayer.remove(path)
       }
 
       async function makeRoute() {
@@ -186,30 +181,25 @@ export default function WebMapComponent() {
         });
         
         var responseJson = await response.json();
-        console.log(responseJson);
         
         var routeFeatureCollection = JSON.parse(responseJson.geojson);
-        
-        // Create a Graphic layer for displaying the route
-        var graphicsLayer = new GraphicsLayer();
-        
+                
         let symbol = {
           type: "simple-line",  // autocasts as new SimpleLineSymbol()
           color: "lightblue",
           width: "10px",
           style: "solid"
         };
-        console.log(routeFeatureCollection)
         var coordinates = routeFeatureCollection.coordinates
-        console.log(coordinates)
-        // Add the route feature to the graphics layer
-        graphicsLayer.add(new Graphic({
+        path = new Graphic({
           geometry: new Polyline({
             paths: coordinates // Access coordinates here
           }),
           symbol: symbol
-        }));
-        
+        })
+        // Add the route feature to the graphics layer
+        graphicsLayer.add(path);
+        routeOn = true
         // Assuming "view" is your MapView
         view.map.add(graphicsLayer);        
       }
@@ -337,7 +327,7 @@ export default function WebMapComponent() {
         view: view,
         id: "tracker"
       });
-      //view.ui.add(tracker, 'top-left')//For some reason leaving this fixes formatting
+      if(!view.ui.find('tracker')) view.ui.add(tracker, 'top-left')//For some reason leaving this fixes formatting
 
       // Add the widgets to the top-right corner of the view
       if (!view.ui.find('searchWidgetStart')) view.ui.add(searchWidgetStart, 'top-right')
@@ -345,7 +335,6 @@ export default function WebMapComponent() {
       if (!view.ui.find('tracker')) view.ui.add(tracker, 'top-left')
       if (!view.ui.find('buttonMenu')) view.ui.add(buttonMenu, 'top-left')
       if (!view.ui.find('timeSlider')) view.ui.add(timeSlider, 'bottom-right')
-      view.ui.add(tracker, 'top-left')
       view.when(() => {
         view.goTo({
           center: [-111.93, 33.419],
