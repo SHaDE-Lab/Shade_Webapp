@@ -11,7 +11,9 @@ import ButtonMenu from '@arcgis/core/widgets/FeatureTable/Grid/support/ButtonMen
 import ButtonMenuItem from '@arcgis/core/widgets/FeatureTable/Grid/support/ButtonMenuItem'
 import TimeSlider from '@arcgis/core/widgets/TimeSlider'
 import Track from '@arcgis/core/widgets/Track'
+import SimpleLineSymbol from '@arcgis/core/symbols/SimpleLineSymbol'
 import TimeInterval from '@arcgis/core/TimeInterval'
+import { Polyline } from '@arcgis/core/geometry'
 
 import './index.css'
 
@@ -172,42 +174,44 @@ export default function WebMapComponent() {
         var date = thumbPosition.getFullYear() + '-' + (thumbPosition.getMonth() + 1)  + '-' + thumbPosition.getDate() + '-' + thumbPosition.getHours()
         
         /* --------------- CALL API HERE -------------------- */
-        // 127.0.0.1:8000/api/route/{"startPoint": [3.3, 5.5], "endPoint": [4.4, 6.6], "dateTime": "hello"}
-        var url = "http://127.0.0.1:8000/api/route/{\"startPoint\": [" + startLat + ", " + startLong + "], \"endPoint\": [" + endLat + ", " + endLong + "], \"dateTime\": \"" + date + "\"}"
-
-        var response = await fetch(url,{
+        var url = "http://127.0.0.1:5000/api/route?json_data=" + encodeURIComponent(JSON.stringify({
+          startPoint: [startLat, startLong],
+          endPoint: [endLat, endLong],
+          dateTime: date
+        }));
+        
+        var response = await fetch(url, {
           method: 'GET',
           mode: 'cors', // Add CORS header
-        })
-        var pointCoords = await response.json()
-
-        //Converts to points
-        pathPoints = await pointCoords.map((coord:number[])=>{
-          return new Point({
-            longitude: coord[0],
-            latitude: coord[1],
-            // spatialReference:{
-            //   wkt: "PROJCS[\"NAD_1983_UTM_Zone_12N\",GEOGCS[\"GCS_North_American_1983\",DATUM[\"D_North_American_1983\",SPHEROID[\"GRS_1980\",6378137.0,298.257222101]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"False_Easting\",500000.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",-111.0],PARAMETER[\"Scale_Factor\",0.9996],PARAMETER[\"Latitude_Of_Origin\",0.0],UNIT[\"Meter\",1.0]]"
-            // }
-          })
-        })
-
-          //Draws points
-        var counter = 0
-        pathPoints.map((point)=>{
-          if(counter % 10 == 0) { //Only draw every 10 points
-            const pointGraphic = new Graphic({
-              geometry: point,
-              symbol: routeMarkerSymbol,
-              })
-
-              graphicsLayer.add(pointGraphic)
-              pathPointsGrahics.push(pointGraphic)
-
-            }
-            counter++
-
-          })
+        });
+        
+        var responseJson = await response.json();
+        console.log(responseJson);
+        
+        var routeFeatureCollection = JSON.parse(responseJson.geojson);
+        
+        // Create a Graphic layer for displaying the route
+        var graphicsLayer = new GraphicsLayer();
+        
+        let symbol = {
+          type: "simple-line",  // autocasts as new SimpleLineSymbol()
+          color: "lightblue",
+          width: "10px",
+          style: "solid"
+        };
+        console.log(routeFeatureCollection)
+        var coordinates = routeFeatureCollection.coordinates
+        console.log(coordinates)
+        // Add the route feature to the graphics layer
+        graphicsLayer.add(new Graphic({
+          geometry: new Polyline({
+            paths: coordinates // Access coordinates here
+          }),
+          symbol: symbol
+        }));
+        
+        // Assuming "view" is your MapView
+        view.map.add(graphicsLayer);        
       }
 
       const buttonMenu = new ButtonMenu ({
