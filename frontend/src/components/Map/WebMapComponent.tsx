@@ -11,7 +11,6 @@ import ButtonMenu from '@arcgis/core/widgets/FeatureTable/Grid/support/ButtonMen
 import ButtonMenuItem from '@arcgis/core/widgets/FeatureTable/Grid/support/ButtonMenuItem'
 import TimeSlider from '@arcgis/core/widgets/TimeSlider'
 import Track from '@arcgis/core/widgets/Track'
-import SimpleLineSymbol from '@arcgis/core/symbols/SimpleLineSymbol'
 import TimeInterval from '@arcgis/core/TimeInterval'
 import { Polyline } from '@arcgis/core/geometry'
 
@@ -165,8 +164,8 @@ export default function WebMapComponent() {
 
         //Determines Date and Time
         var thumbPosition = timeSlider.timeExtent.end
-
-        var date = thumbPosition.getFullYear() + '-' + (thumbPosition.getMonth() + 1)  + '-' + thumbPosition.getDate() + '-' + thumbPosition.getHours()
+        // this is local UTC time AZ is GMT - 7 so utc is 7 hours ahead
+        var date = thumbPosition.getUTCFullYear() + '-' + (thumbPosition.getUTCMonth() + 1)  + '-' + thumbPosition.getUTCDate() + '-' + thumbPosition.getUTCHours()
         
         /* --------------- CALL API HERE -------------------- */
         var url = "http://127.0.0.1:5000/api/route?json_data=" + encodeURIComponent(JSON.stringify({
@@ -326,8 +325,7 @@ export default function WebMapComponent() {
       let tracker = new Track({ //Displays user's location
         view: view,
         id: "tracker"
-      });
-      if(!view.ui.find('tracker')) view.ui.add(tracker, 'top-left')//For some reason leaving this fixes formatting
+      })
 
       // Add the widgets to the top-right corner of the view
       if (!view.ui.find('searchWidgetStart')) view.ui.add(searchWidgetStart, 'top-right')
@@ -335,6 +333,8 @@ export default function WebMapComponent() {
       if (!view.ui.find('tracker')) view.ui.add(tracker, 'top-left')
       if (!view.ui.find('buttonMenu')) view.ui.add(buttonMenu, 'top-left')
       if (!view.ui.find('timeSlider')) view.ui.add(timeSlider, 'bottom-right')
+      view.ui.add(tracker, 'top-right')//For some reason leaving this fixes formatting
+
       view.when(() => {
         view.goTo({
           center: [-111.93, 33.419],
@@ -345,8 +345,6 @@ export default function WebMapComponent() {
 
 
     }
-
-
   }, [view])
 
   return (
