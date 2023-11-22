@@ -165,7 +165,7 @@ export default function WebMapComponent() {
         //Determines Date and Time
         var thumbPosition = timeSlider.timeExtent.end
         // this is local UTC time AZ is GMT - 7 so utc is 7 hours ahead
-        var date = thumbPosition.getUTCFullYear() + '-' + (thumbPosition.getUTCMonth() + 1)  + '-' + thumbPosition.getUTCDate() + '-' + thumbPosition.getUTCHours()
+        var date = thumbPosition.getUTCFullYear() + '-' + (thumbPosition.getUTCMonth() + 1)  + '-' + thumbPosition.getUTCDate() + '-' + (thumbPosition.getUTCHours() < 10 ? '0' + thumbPosition.getUTCHours() : thumbPosition.getUTCHours()) +'00'
         
         /* --------------- CALL API HERE -------------------- */
         var url = "http://127.0.0.1:5000/api/route?json_data=" + encodeURIComponent(JSON.stringify({
