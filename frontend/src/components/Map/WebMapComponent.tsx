@@ -165,7 +165,7 @@ export default function WebMapComponent() {
         //Determines Date and Time
         var thumbPosition = timeSlider.timeExtent.end
         // this is local UTC time AZ is GMT - 7 so utc is 7 hours ahead
-        var date = thumbPosition.getUTCFullYear() + '-' + (thumbPosition.getUTCMonth() + 1)  + '-' + thumbPosition.getUTCDate() + '-' + (thumbPosition.getUTCHours() < 10 ? '0' + thumbPosition.getUTCHours() : thumbPosition.getUTCHours()) +'00'
+        var date = thumbPosition.getUTCFullYear() + '-' + (thumbPosition.getUTCMonth() + 1)  + '-' + (thumbPosition.getUTCDate() < 10 ? '0' + thumbPosition.getUTCDate() : thumbPosition.getUTCDate()) + '-' + (thumbPosition.getUTCHours() < 10 ? '0' + thumbPosition.getUTCHours() : thumbPosition.getUTCHours()) +'00'
         
         /* --------------- CALL API HERE -------------------- */
         var url = "http://127.0.0.1:5000/api/route?json_data=" + encodeURIComponent(JSON.stringify({
@@ -264,7 +264,7 @@ export default function WebMapComponent() {
 
         graphicsLayer.add(graphic)
 
-        if (routeOn) { //Remake route
+        if (routeOn || (startPoint && endPoint && endPoint.latitude != 0 && startPoint.latitude != 0)) { //Remake route
           deleteRoute()
           makeRoute()
         }
@@ -321,6 +321,17 @@ export default function WebMapComponent() {
         }
 
       });
+
+      timeSlider.on("trigger-action", (event) => {
+        console.log(event)
+      })
+
+      timeSlider.watch("timeExtent", function(value) {
+        if (routeOn || (startPoint && endPoint && endPoint.latitude != 0 && startPoint.latitude != 0)) { //Remake route
+          deleteRoute()
+          makeRoute()
+        }
+      })
 
       let tracker = new Track({ //Displays user's location
         view: view,
