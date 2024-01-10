@@ -177,7 +177,7 @@ export default function WebMapComponent() {
         }00`
 
         /* --------------- CALL API HERE -------------------- */
-        const url = `https://cool-routes-routing.0af4v481a41oa.us-west-2.cs.amazonlightsail.com/api=${encodeURIComponent(
+        const url = `https://cool-routes-routing.0af4v481a41oa.us-west-2.cs.amazonlightsail.com/api/route?json_data=${encodeURIComponent(
           JSON.stringify({
             startPoint: [startLat, startLong],
             endPoint: [endLat, endLong],
