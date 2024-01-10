@@ -9,7 +9,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   server: {
     proxy: {
-      '/api/v1': 'http://localhost:5000/',
+      '/api/v1': 'https://cool-routes-routing.0af4v481a41oa.us-west-2.cs.amazonlightsail.com/api',
     },
   },
   plugins: [
