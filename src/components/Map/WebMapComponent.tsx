@@ -22,6 +22,7 @@ export default function WebMapComponent() {
 
   useEffect(() => {
     esriConfig.apiKey = import.meta.env.VITE_ARC_GIS_API_KEY
+    const backendUrl = import.meta.env.VITE_BACKEND_URL
     if (mapDiv.current) {
       view.container = mapDiv.current
 
@@ -177,14 +178,14 @@ export default function WebMapComponent() {
         }00`
 
         /* --------------- CALL API HERE -------------------- */
-        const url = `https://cool-routes-routing.0af4v481a41oa.us-west-2.cs.amazonlightsail.com/api/route?json_data=${encodeURIComponent(
+        const url = `${backendUrl}/api/route?json_data=${encodeURIComponent(
           JSON.stringify({
             startPoint: [startLat, startLong],
             endPoint: [endLat, endLong],
             dateTime: date,
           })
         )}`
-
+  
         const response = await fetch(url, {
           method: 'GET',
           mode: 'cors', // Add CORS header
