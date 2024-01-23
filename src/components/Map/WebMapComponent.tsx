@@ -19,10 +19,10 @@ import './index.css'
 export default function WebMapComponent() {
   const mapDiv = useRef(null)
   const view = useMap()
+  const backendUrl = import.meta.env.VITE_BACKEND_URL
 
   useEffect(() => {
     esriConfig.apiKey = import.meta.env.VITE_ARC_GIS_API_KEY
-    const backendUrl = import.meta.env.VITE_BACKEND_URL
     if (mapDiv.current) {
       view.container = mapDiv.current
 
@@ -185,7 +185,7 @@ export default function WebMapComponent() {
             dateTime: date,
           })
         )}`
-  
+
         const response = await fetch(url, {
           method: 'GET',
           mode: 'cors', // Add CORS header
