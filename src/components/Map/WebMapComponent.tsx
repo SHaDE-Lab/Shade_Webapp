@@ -112,7 +112,7 @@ export default function WebMapComponent() {
       setStartPoint(undefined)
     })
 
-    searchWidgetStart.on('select-result', function (event) {
+    searchWidgetStart.on('select-result', (event) => {
       const { longitude } = event.result.extent.center
       const { latitude } = event.result.extent.center
 
@@ -122,6 +122,7 @@ export default function WebMapComponent() {
     if (!view.ui.find('searchWidgetStart'))
       view.ui.add(searchWidgetStart, 'top-right')
   }
+
   const addEndSearch = () => {
     const endSearchWidgetSource = new LayerSearchSource({
       layer: view.map.layers.find((layer) => layer.id === 'buildings'),
@@ -201,9 +202,8 @@ export default function WebMapComponent() {
     })
 
     timeSlider.watch('timeExtent', (value) => {
-        setThumbPosition(value.end)
-      }
-    )
+      setThumbPosition(value.end)
+    })
     if (!view.ui.find('timeSlider')) view.ui.add(timeSlider, 'bottom-right')
   }
   const addTracker = () => {
@@ -215,12 +215,12 @@ export default function WebMapComponent() {
     if (!view.ui.find('tracker')) view.ui.add(tracker, 'top-left')
   }
 
-  function deleteRoute() { 
+  const deleteRoute = () => {
     if (!path) return
     graphicsLayer?.remove(path)
   }
 
-  async function makeRoute() {
+  const makeRoute = async () => {
     deleteRoute() // clears route first
 
     // Determines Start and End Points
@@ -304,13 +304,21 @@ export default function WebMapComponent() {
   }, [view])
 
   const shouldDrawRoute = () => {
-    return startPoint && endPoint && thumbPosition && thumbPosition != new Date()
-     && startPoint.latitude != 0 && endPoint.latitude != 0 
-     && startPoint.longitude != 0 && endPoint.longitude != 0
-     && startPoint != endPoint
+    return (
+      startPoint &&
+      endPoint &&
+      thumbPosition &&
+      thumbPosition != new Date() &&
+      startPoint.latitude != 0 &&
+      endPoint.latitude != 0 &&
+      startPoint.longitude != 0 &&
+      endPoint.longitude != 0 &&
+      startPoint != endPoint
+    )
   }
+
   useEffect(() => {
-    if(!shouldDrawRoute()) return
+    if (!shouldDrawRoute()) return
     deleteRoute()
     makeRoute()
   }, [startPoint, endPoint, thumbPosition])
@@ -325,9 +333,7 @@ export default function WebMapComponent() {
     graphicsLayer?.remove(startPointGraphic.current)
     startPointGraphic.current.geometry = startPoint
     graphicsLayer?.add(startPointGraphic.current)
-    
   }, [startPoint])
-
 
   useEffect(() => {
     if (!endPoint) {
@@ -339,7 +345,6 @@ export default function WebMapComponent() {
     graphicsLayer?.remove(endPointGraphic.current)
     endPointGraphic.current.geometry = endPoint
     graphicsLayer?.add(endPointGraphic.current)
-    
   }, [endPoint])
 
   return (
