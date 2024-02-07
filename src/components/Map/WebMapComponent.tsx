@@ -364,16 +364,12 @@ export default function WebMapComponent() {
               { value: 20, color: 'dodgerblue' },         // 20
               { value: 30, color: 'deepskyblue' },        // 30
               { value: 40, color: 'cyan' },               // 40
-              { value: 60, color: 'yellow' },             // 60
-              { value: 70, color: 'orange' },             // 70
-              { value: 80, color: 'darkorange' },         // 80
-              { value: 90, color: 'orangered' },          // 90
-              { value: 100, color: 'red' },               // 100
-              { value: 110, color: 'firebrick' },         // 110
-              { value: 120, color: 'maroon' },            // 120
-              { value: 130, color: 'darkred' },           // 130
-              { value: 140, color: 'brown' },             // 140
-              { value: 150, color: 'black' }              // 150
+              { value: 50, color: 'yellow' },         // 50
+              { value: 60, color: 'orange' },             // 60
+              { value: 70, color: 'darkorange' },             // 70
+              { value: 80, color: 'orangered' },         // 80
+              { value: 90, color: 'red' },          // 90
+              { value: 100, color: 'firebrick' },               // 100
             ]
           },
         ],
