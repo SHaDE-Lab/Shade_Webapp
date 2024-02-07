@@ -9,10 +9,9 @@ import Point from '@arcgis/core/geometry/Point'
 import TimeSlider from '@arcgis/core/widgets/TimeSlider'
 import Track from '@arcgis/core/widgets/Track'
 import TimeInterval from '@arcgis/core/TimeInterval'
-import { Polyline } from '@arcgis/core/geometry'
 import { useMap } from '../../context/MapContext'
-
 import './index.css'
+import Feature from 'esri/widgets/Feature'
 
 export default function WebMapComponent() {
   const mapDiv = useRef(null)
@@ -21,8 +20,9 @@ export default function WebMapComponent() {
   const [startPoint, setStartPoint] = useState<Point>()
   const [endPoint, setEndPoint] = useState<Point>()
   const [graphicsLayer, setGraphicsLayer] = useState<GraphicsLayer>()
-  const [path, setPath] = useState<Graphic>()
   const [thumbPosition, setThumbPosition] = useState<Date>(new Date())
+  const [routeLayer, setRouteLayer] = useState<FeatureLayer>()
+  const [routeFeatures, setRouteFeatures] = useState<Array<Feature>>([])
 
   const startMarkerSymbol = {
     type: 'simple-marker', // autocasts as new SimpleMarkerSymbol()
@@ -77,7 +77,6 @@ export default function WebMapComponent() {
 
     if (!view.map.findLayerById('buildings')) view.map.add(buildingsLayer)
   }
-  const addRouteLayer = () => {}
 
   const addStartSearch = () => {
     /* BUILDING SEARCH */
@@ -216,8 +215,19 @@ export default function WebMapComponent() {
   }
 
   const deleteRoute = () => {
-    if (!path) return
-    graphicsLayer?.remove(path)
+    if (routeFeatures?.length > 0) {
+      // Delete all features from the feature layer
+      routeLayer
+        ?.applyEdits({
+          deleteFeatures: routeFeatures,
+        })
+        .then(() => {
+          console.log('All features deleted successfully')
+        })
+        .catch((error) => {
+          console.error('Error deleting features:', error)
+        })
+    }
   }
 
   const makeRoute = async () => {
@@ -261,22 +271,47 @@ export default function WebMapComponent() {
 
     const routeFeatureCollection = JSON.parse(responseJson.geojson)
 
-    const symbol = {
-      type: 'simple-line', // autocasts as new SimpleLineSymbol()
-      color: 'lightblue',
-      width: '10px',
-      style: 'solid',
-    }
+    const mrtValues = JSON.parse(responseJson.mrt)
+
     const { coordinates } = routeFeatureCollection
-    const path = new Graphic({
-      geometry: new Polyline({
-        paths: coordinates, // Access coordinates here
-      }),
-      symbol,
+
+    // group each pair of coordinates into a single array
+    // [ a,b,c,d ] => [ [a,b], [b,c], [c,d], ...
+    const lineSegments = coordinates.map((coord, index) => {
+      if (index === 0) return
+      return [coordinates[index - 1], coord]
     })
-    // Add the route feature to the graphics layer
-    graphicsLayer?.add(path)
-    setPath(path)
+    // remove the first element bc its undefined
+    lineSegments.shift()
+
+    const featuresToAdd: Array<Feature> = []
+
+    lineSegments.forEach((lineSegment, index) => {
+      // Create a feature with the line segment geometry and MRT value
+      const feature = {
+        geometry: {
+          type: 'polyline',
+          paths: [lineSegment],
+        },
+        attributes: {
+          mrt: mrtValues[index], // Assuming mrtValues is an array of MRT values corresponding to each line segment
+        },
+      }
+      featuresToAdd.push(feature)
+    })
+
+    // Add features to the feature layer
+    routeLayer
+      ?.applyEdits({
+        addFeatures: featuresToAdd,
+      })
+      .then((result) => {
+        console.log('Features added successfully:', result)
+      })
+      .catch((error) => {
+        console.error('Error adding features:', error)
+      })
+    setRouteFeatures(featuresToAdd)
   }
 
   useEffect(() => {
@@ -285,14 +320,65 @@ export default function WebMapComponent() {
       view.container = mapDiv.current
 
       addBuildingLayer()
-      addRouteLayer()
       addSearchWidgets()
       addTimeSlider()
       addTracker()
 
-      const graphicsLayer = new GraphicsLayer()
-      view.map.add(graphicsLayer)
-      setGraphicsLayer(graphicsLayer)
+      const graphics = new GraphicsLayer()
+      view.map.add(graphics)
+      setGraphicsLayer(graphics)
+
+      const route = new FeatureLayer({
+        objectIdField: 'ObjectID',
+        geometryType: 'polyline',
+        spatialReference: { wkid: 4326 },
+        id: 'route',
+        source: [],
+        fields: [
+          {
+            name: 'mrt',
+            alias: 'MRT',
+            type: 'double', // Assuming "mrt" values are integers, adjust type accordingly
+          },
+        ],
+      })
+      // Add the feature layer to the map
+      view.map.add(route)
+      setRouteLayer(route)
+
+      const renderer = {
+        type: 'simple',
+        symbol: {
+          type: 'simple-line',
+          width: 8, // Constant width for the lines
+          style: 'solid',
+          color: 'lightblue', // Default color for the lines
+        },
+        visualVariables: [
+          {
+            type: 'color',
+            field: 'mrt', // Field to base the color on
+            stops: [
+              { value: 0, color: 'lightblue' },           // 0
+              { value: 10, color: 'blue' },               // 10
+              { value: 20, color: 'dodgerblue' },         // 20
+              { value: 30, color: 'deepskyblue' },        // 30
+              { value: 40, color: 'cyan' },               // 40
+              { value: 60, color: 'yellow' },             // 60
+              { value: 70, color: 'orange' },             // 70
+              { value: 80, color: 'darkorange' },         // 80
+              { value: 90, color: 'orangered' },          // 90
+              { value: 100, color: 'red' },               // 100
+              { value: 110, color: 'firebrick' },         // 110
+              { value: 120, color: 'maroon' },            // 120
+              { value: 130, color: 'darkred' },           // 130
+              { value: 140, color: 'brown' },             // 140
+              { value: 150, color: 'black' }              // 150
+            ]
+          },
+        ],
+      }
+      route.renderer = renderer
 
       view.when(() => {
         view.goTo({
