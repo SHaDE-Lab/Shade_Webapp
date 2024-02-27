@@ -265,6 +265,9 @@ export default function WebMapComponent() {
     const response = await fetch(url, {
       method: 'GET',
       mode: 'cors', // Add CORS header
+      headers: new Headers({
+        "ngrok-skip-browser-warning": "69420",
+      })
     })
 
     const responseJson = await response.json()
@@ -345,7 +348,17 @@ export default function WebMapComponent() {
       // Add the feature layer to the map
       view.map.add(route)
       setRouteLayer(route)
-
+      const colors = [
+        '#ffffcc',
+        '#ffeda0',
+        '#fed976',
+        '#feb24c',
+        '#fd8d3c',
+        '#fc4e2a',
+        '#e31a1c',
+        '#bd0026',
+        '#800026',
+      ]
       const renderer = {
         type: 'simple',
         symbol: {
@@ -358,18 +371,16 @@ export default function WebMapComponent() {
           {
             type: 'color',
             field: 'mrt', // Field to base the color on
-            stops: [
-              { value: 0, color: 'lightblue' },           // 0
-              { value: 10, color: 'blue' },               // 10
-              { value: 20, color: 'dodgerblue' },         // 20
-              { value: 30, color: 'deepskyblue' },        // 30
-              { value: 40, color: 'cyan' },               // 40
-              { value: 50, color: 'yellow' },         // 50
-              { value: 60, color: 'orange' },             // 60
-              { value: 70, color: 'darkorange' },             // 70
-              { value: 80, color: 'orangered' },         // 80
-              { value: 90, color: 'red' },          // 90
-              { value: 100, color: 'firebrick' },               // 100
+            stops: [ // five degree increments from 20 to 80 
+              { value: 25, color: colors[0] },           // 0 - 25
+              { value: 35, color: colors[1] },               // 25-35
+              { value: 40, color: colors[2] },         // 35-40
+              { value: 45, color: colors[3] },        // 40-45
+              { value: 50, color: colors[4] },               // 45 - 50
+              { value: 55, color: colors[5] },             // 50 - 55
+              { value: 60, color: colors[6] },             // 55- 60
+              { value: 70, color: colors[7] },             // 60 - 70     
+              { value: 80, color: colors[8] },             // 70- 80      
             ]
           },
         ],
