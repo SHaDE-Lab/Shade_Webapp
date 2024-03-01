@@ -12,6 +12,7 @@ import TimeInterval from '@arcgis/core/TimeInterval'
 import { useMap } from '../../context/MapContext'
 import './index.css'
 import Feature from 'esri/widgets/Feature'
+import { CircularProgress } from '@mui/material'
 
 export default function WebMapComponent() {
   const mapDiv = useRef(null)
@@ -23,6 +24,7 @@ export default function WebMapComponent() {
   const [thumbPosition, setThumbPosition] = useState<Date>(new Date())
   const [routeLayer, setRouteLayer] = useState<FeatureLayer>()
   const [routeFeatures, setRouteFeatures] = useState<Array<Feature>>([])
+  const [loading, setLoading] = useState(false)
 
   const startMarkerSymbol = {
     type: 'simple-marker', // autocasts as new SimpleMarkerSymbol()
@@ -172,7 +174,6 @@ export default function WebMapComponent() {
   const addTimeSlider = () => {
     // --------------- Time Slider
     const today = new Date()
-    today.setHours(0)
     today.setMinutes(0)
     today.setSeconds(0)
 
@@ -231,6 +232,7 @@ export default function WebMapComponent() {
   }
 
   const makeRoute = async () => {
+    setLoading(true)
     deleteRoute() // clears route first
 
     // Determines Start and End Points
@@ -315,6 +317,8 @@ export default function WebMapComponent() {
         console.error('Error adding features:', error)
       })
     setRouteFeatures(featuresToAdd)
+
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -406,7 +410,8 @@ export default function WebMapComponent() {
       endPoint.latitude != 0 &&
       startPoint.longitude != 0 &&
       endPoint.longitude != 0 &&
-      startPoint != endPoint
+      startPoint != endPoint && 
+      !loading 
     )
   }
 
@@ -441,9 +446,16 @@ export default function WebMapComponent() {
   }, [endPoint])
 
   return (
-    <div
-      style={{ padding: 0, margin: 0, height: '100%', width: '100%' }}
-      ref={mapDiv}
-    />
+    <div style={{ position: 'relative', height: '100%', width: '100%' }}>
+      <div
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999, display: loading ? 'flex' : 'none', justifyContent: 'center', alignItems: 'center' }}>
+        <CircularProgress />
+      </div>
+
+      <div
+        style={{ padding: 0, margin: 0, height: '100%', width: '100%' }}
+        ref={mapDiv}>
+      </div>
+    </div>
   )
 }
