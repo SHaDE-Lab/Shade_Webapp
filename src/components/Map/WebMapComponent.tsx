@@ -244,7 +244,9 @@ export default function WebMapComponent() {
 
     // FORMAT INTO UTC TIME LIKE THIS: 2021-10-01-0000
     const date = `${thumbPosition.getUTCFullYear()}-${
-      thumbPosition.getUTCMonth() + 1
+      thumbPosition.getUTCMonth() + 1 < 10
+        ? `0${thumbPosition.getUTCMonth() + 1}`
+        : thumbPosition.getUTCMonth() + 1
     }-${
       thumbPosition.getUTCDate() < 10
         ? `0${thumbPosition.getUTCDate()}`
@@ -263,62 +265,73 @@ export default function WebMapComponent() {
         dateTime: date,
       })
     )}`
-
-    const response = await fetch(url, {
-      method: 'GET',
-      mode: 'cors', // Add CORS header
-      headers: new Headers({
-        "ngrok-skip-browser-warning": "69420",
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        mode: 'cors', // Add CORS header
+        headers: new Headers({
+          'ngrok-skip-browser-warning': '69420',
+        }),
       })
-    })
+      const responseJson = await response.json()
 
-    const responseJson = await response.json()
+      const routeFeatureCollection = JSON.parse(responseJson.geojson)
 
-    const routeFeatureCollection = JSON.parse(responseJson.geojson)
+      const mrtValues = JSON.parse(responseJson.mrt)
 
-    const mrtValues = JSON.parse(responseJson.mrt)
+      const { coordinates } = routeFeatureCollection
 
-    const { coordinates } = routeFeatureCollection
-
-    // group each pair of coordinates into a single array
-    // [ a,b,c,d ] => [ [a,b], [b,c], [c,d], ...
-    const lineSegments = coordinates.map((coord, index) => {
-      if (index === 0) return
-      return [coordinates[index - 1], coord]
-    })
-    // remove the first element bc its undefined
-    lineSegments.shift()
-
-    const featuresToAdd: Array<Feature> = []
-
-    lineSegments.forEach((lineSegment, index) => {
-      // Create a feature with the line segment geometry and MRT value
-      const feature = {
-        geometry: {
-          type: 'polyline',
-          paths: [lineSegment],
-        },
-        attributes: {
-          mrt: mrtValues[index], // Assuming mrtValues is an array of MRT values corresponding to each line segment
-        },
-      }
-      featuresToAdd.push(feature)
-    })
-
-    // Add features to the feature layer
-    routeLayer
-      ?.applyEdits({
-        addFeatures: featuresToAdd,
+      // group each pair of coordinates into a single array
+      // [ a,b,c,d ] => [ [a,b], [b,c], [c,d] ]
+      const lineSegments = coordinates.map((coord, index) => {
+        if (index === 0) return
+        return [coordinates[index - 1], coord]
       })
-      .then((result) => {
-        console.log('Features added successfully:', result)
-      })
-      .catch((error) => {
-        console.error('Error adding features:', error)
-      })
-    setRouteFeatures(featuresToAdd)
+      // remove the first element bc its undefined
+      lineSegments.shift()
 
-    setLoading(false)
+      const featuresToAdd: Array<Feature> = []
+
+      lineSegments.forEach((lineSegment, index) => {
+        // Create a feature with the line segment geometry and MRT value
+        const feature = {
+          geometry: {
+            type: 'polyline',
+            paths: [lineSegment],
+          },
+          attributes: {
+            mrt: mrtValues[index], // Assuming mrtValues is an array of MRT values corresponding to each line segment
+          },
+        }
+        featuresToAdd.push(feature)
+      })
+
+      // Add features to the feature layer
+      routeLayer
+        ?.applyEdits({
+          addFeatures: featuresToAdd,
+        })
+        .then((result) => {
+          console.log('Features added successfully:', result)
+        })
+        .catch((error) => {
+          console.error('Error adding features:', error)
+        })
+      setRouteFeatures(featuresToAdd)
+      console.log(responseJson.stats)
+      // SET STATS
+      const averageMRT = responseJson.stats.average_mrt
+      const totalMRT = responseJson.stats.mrt
+      const length = responseJson.stats.length
+
+      // display these in the UI
+      
+
+    } catch (error) {
+      console.error('Error fetching route:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -375,17 +388,18 @@ export default function WebMapComponent() {
           {
             type: 'color',
             field: 'mrt', // Field to base the color on
-            stops: [ // five degree increments from 20 to 80 
-              { value: 25, color: colors[0] },           // 0 - 25
-              { value: 35, color: colors[1] },               // 25-35
-              { value: 40, color: colors[2] },         // 35-40
-              { value: 45, color: colors[3] },        // 40-45
-              { value: 50, color: colors[4] },               // 45 - 50
-              { value: 55, color: colors[5] },             // 50 - 55
-              { value: 60, color: colors[6] },             // 55- 60
-              { value: 70, color: colors[7] },             // 60 - 70     
-              { value: 80, color: colors[8] },             // 70- 80      
-            ]
+            stops: [
+              // five degree increments from 20 to 80
+              { value: 25, color: colors[0] }, // 0 - 25
+              { value: 35, color: colors[1] }, // 25-35
+              { value: 40, color: colors[2] }, // 35-40
+              { value: 45, color: colors[3] }, // 40-45
+              { value: 50, color: colors[4] }, // 45 - 50
+              { value: 55, color: colors[5] }, // 50 - 55
+              { value: 60, color: colors[6] }, // 55- 60
+              { value: 70, color: colors[7] }, // 60 - 70
+              { value: 80, color: colors[8] }, // 70- 80
+            ],
           },
         ],
       }
@@ -410,8 +424,8 @@ export default function WebMapComponent() {
       endPoint.latitude != 0 &&
       startPoint.longitude != 0 &&
       endPoint.longitude != 0 &&
-      startPoint != endPoint && 
-      !loading 
+      startPoint != endPoint &&
+      !loading
     )
   }
 
@@ -448,14 +462,25 @@ export default function WebMapComponent() {
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
       <div
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999, display: loading ? 'flex' : 'none', justifyContent: 'center', alignItems: 'center' }}>
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 999,
+          display: loading ? 'flex' : 'none',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         <CircularProgress />
       </div>
 
       <div
         style={{ padding: 0, margin: 0, height: '100%', width: '100%' }}
-        ref={mapDiv}>
-      </div>
+        ref={mapDiv}
+      ></div>
     </div>
   )
 }
