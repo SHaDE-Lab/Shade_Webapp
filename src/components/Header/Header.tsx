@@ -13,7 +13,8 @@ import Tooltip from '@mui/material/Tooltip'
 import MenuItem from '@mui/material/MenuItem'
 import RouteIcon from '@mui/icons-material/Route'
 
-const pages = ['Map', 'Info']
+// const pages = ['Map', 'Info', 'About']
+const pages = ['Map']
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout']
 
 function ResponsiveAppBar() {
