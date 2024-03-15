@@ -9,10 +9,13 @@ import Point from '@arcgis/core/geometry/Point'
 import TimeSlider from '@arcgis/core/widgets/TimeSlider'
 import Track from '@arcgis/core/widgets/Track'
 import TimeInterval from '@arcgis/core/TimeInterval'
+import Legend from '@arcgis/core/widgets/Legend'
+import Feature from 'esri/widgets/Feature'
+import Expand from '@arcgis/core/widgets/Expand'
+import { CircularProgress } from '@mui/material'
 import { useMap } from '../../context/MapContext'
 import './index.css'
-import Feature from 'esri/widgets/Feature'
-import { CircularProgress } from '@mui/material'
+import RouteCard from './RouteCard'
 
 export default function WebMapComponent() {
   const mapDiv = useRef(null)
@@ -25,6 +28,8 @@ export default function WebMapComponent() {
   const [routeLayer, setRouteLayer] = useState<FeatureLayer>()
   const [routeFeatures, setRouteFeatures] = useState<Array<Feature>>([])
   const [loading, setLoading] = useState(false)
+  const [averageMRT, setAverageMRT] = useState(0)
+  const [routeLength, setRouteLength] = useState(0)
 
   const startMarkerSymbol = {
     type: 'simple-marker', // autocasts as new SimpleMarkerSymbol()
@@ -103,6 +108,7 @@ export default function WebMapComponent() {
       popupEnabled: false,
       suggestionsEnabled: true,
       searchAllEnabled: false,
+      locationEnabled: true,
       maxSuggestions: 5,
       minSuggestCharacters: 1,
       sources: [startSearchWidgetSource],
@@ -188,6 +194,7 @@ export default function WebMapComponent() {
       view,
       id: 'timeSlider',
       mode: 'instant',
+      layout: 'compact',
       fullTimeExtent: {
         start: today,
         end: endDate,
@@ -204,7 +211,17 @@ export default function WebMapComponent() {
     timeSlider.watch('timeExtent', (value) => {
       setThumbPosition(value.end)
     })
-    if (!view.ui.find('timeSlider')) view.ui.add(timeSlider, 'bottom-right')
+
+    var timeSliderExpand = new Expand({
+      view: view,
+      content: timeSlider,
+      expandIconClass: "esri-icon-time-clock",
+      group: "top-left",
+      id: 'timeSliderExpand',
+      mode: 'floating',
+    })
+
+    if (!view.ui.find('timeSliderExpand')) view.ui.add(timeSliderExpand, 'top-right')
   }
   const addTracker = () => {
     const tracker = new Track({
@@ -322,11 +339,11 @@ export default function WebMapComponent() {
       // SET STATS
       const averageMRT = responseJson.stats.average_mrt
       const totalMRT = responseJson.stats.mrt
-      const length = responseJson.stats.length
+      const { length } = responseJson.stats
 
       // display these in the UI
-      
-
+      setAverageMRT(averageMRT)
+      setRouteLength(length)
     } catch (error) {
       console.error('Error fetching route:', error)
     } finally {
@@ -348,23 +365,6 @@ export default function WebMapComponent() {
       view.map.add(graphics)
       setGraphicsLayer(graphics)
 
-      const route = new FeatureLayer({
-        objectIdField: 'ObjectID',
-        geometryType: 'polyline',
-        spatialReference: { wkid: 4326 },
-        id: 'route',
-        source: [],
-        fields: [
-          {
-            name: 'mrt',
-            alias: 'MRT',
-            type: 'double', // Assuming "mrt" values are integers, adjust type accordingly
-          },
-        ],
-      })
-      // Add the feature layer to the map
-      view.map.add(route)
-      setRouteLayer(route)
       const colors = [
         '#ffffcc',
         '#ffeda0',
@@ -403,7 +403,25 @@ export default function WebMapComponent() {
           },
         ],
       }
+
+      const route = new FeatureLayer({
+        objectIdField: 'ObjectID',
+        geometryType: 'polyline',
+        spatialReference: { wkid: 4326 },
+        id: 'route',
+        source: [],
+        fields: [
+          {
+            name: 'mrt',
+            alias: 'MRT',
+            type: 'double', // Assuming "mrt" values are integers, adjust type accordingly
+          },
+        ],
+      })
       route.renderer = renderer
+      // Add the feature layer to the map
+      view.map.add(route)
+      setRouteLayer(route)
 
       view.when(() => {
         view.goTo({
@@ -411,7 +429,33 @@ export default function WebMapComponent() {
           zoom: 15,
         })
       })
+      if(!view.ui.find('legend')){
+        console.log('adding legend')
+        const legend = new Legend({
+          view,
+          id: 'legend',
+          layerInfos: [
+            {
+              layer: route,
+              title: 'MRT',
+            },
+          ],
+          respectLayerVisibility: true,
+        })
+
+        const expand = new Expand({
+          view,
+          content: legend,
+          expandIconClass: 'esri-icon-legend',
+          group: 'top-left',
+          id: 'legendExpand',
+          mode: 'floating',
+        })
+        if (!view.ui.find('legendExpand')) view.ui.add(expand, 'top-left')
+      }
     }
+
+    // Add the legend to the view
   }, [view])
 
   const shouldDrawRoute = () => {
@@ -476,11 +520,23 @@ export default function WebMapComponent() {
       >
         <CircularProgress />
       </div>
+      <div
+        style={{
+          position: 'absolute',
+          left: '1vh',
+          bottom: '8vh',
+          zIndex: 999,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <RouteCard average_mrt={averageMRT} length={routeLength} />
+      </div>
 
       <div
         style={{ padding: 0, margin: 0, height: '100%', width: '100%' }}
         ref={mapDiv}
-      ></div>
+      />
     </div>
   )
 }

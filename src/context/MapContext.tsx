@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import WebMap from '@arcgis/core/WebMap'
 import MapView from '@arcgis/core/views/MapView'
+import { watch } from '@arcgis/core/core/reactiveUtils'
 
 type MapProviderProps = { children: React.ReactNode }
 
@@ -22,6 +23,22 @@ function MapProvider({ children }: MapProviderProps) {
         map: webmap,
       }),
     [webmap]
+  )
+
+  watch(
+    () => view.widthBreakpoint,
+    (breakpoint) => {
+      switch (breakpoint) {
+        case 'xsmall':
+        case 'small':
+          view.ui.remove('zoom')
+          break
+        default:
+          if (!view.ui.find('zoom')) {
+            view.ui.add('zoom', 'top-left')
+          }
+      }
+    }
   )
 
   return <MapContext.Provider value={view}>{children}</MapContext.Provider>
