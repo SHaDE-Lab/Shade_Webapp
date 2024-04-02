@@ -245,6 +245,8 @@ export default function WebMapComponent() {
         .catch((error) => {
           console.error('Error deleting features:', error)
         })
+        setAverageMRT(0)
+        setRouteLength(0)
     }
   }
 
@@ -530,7 +532,7 @@ export default function WebMapComponent() {
           alignItems: 'center',
         }}
       >
-        <RouteCard average_mrt={averageMRT} length={routeLength} />
+        <RouteCard averageMRT={averageMRT} routeLength={routeLength} />
       </div>
 
       <div
