@@ -4,43 +4,43 @@ export default function InfoPage() {
   // TOOD: add info to this page
   return (
     <div className="cool-routes-container">
-      <h1>Welcome to Cool Routes</h1>
+      <h1>About The Team</h1>
+
+      <h2>Current Team Members</h2>
+      <h3>Evan Crabtree</h3>
       <p>
-        Welcome to Cool Routes, an innovative project designed to enhance walkability within the Arizona State University (ASU) campus by leveraging Mean Radiant Temperature (MRT) data. Our mission is to provide the university community comfortable walking routes that consider thermal comfort, especially under the hot sun in Tempe. By prioritizing well-being alongside convenience, Cool Routes aims to promote a healthier, more sustainable campus environment.
+        Master's Student, Computer Science, SCAI, Arizona State University
       </p>
-      <h2>What is Mean Radiant Temperature (MRT)?</h2>
       <p>
-        Mean Radiant Temperature (MRT) is crucial in determining thermal comfort outdoors. It represents the average temperature of all surfaces surrounding a person, taking into account direct and reflected solar radiation as well as the ambient air temperature. MRT is significant because it influences how warm or cool a person feels in a given environment, beyond what air temperature alone can tell us.
+        Evan is passionate about augmenting the world with data and empowering people to make safer and cooler decisions. With a deep commitment to harnessing the power of cutting-edge technology, Evan constantly seeks out innovative solutions that push the boundaries of what's possible and drive positive change.
       </p>
-      <h2>Heat Load and Solar Radiation</h2>
+    <h3>Fletcher Emmott</h3>
       <p>
-        The sun's radiation contributes significantly to the heat load experienced by individuals outdoors. This load varies depending on factors like the time of day, cloud cover, and the presence of reflective surfaces. Understanding this heat load is essential for assessing thermal comfort accurately.
+        Bachelor's Student, Computer Science, SCAI & Barrett Honors College, Arizona State University
       </p>
-      <h2>Why MRT is Important</h2>
-      <ul>
-        <li>Thermal Comfort: It provides a more comprehensive understanding of comfort levels outdoors, considering both heat and sunlight exposure.</li>
-        <li>Health and Well-being: By highlighting cooler routes, we can reduce heat stress and improve the overall outdoor experience.</li>
-        <li>Sustainability: Encouraging walkability through comfortable routes supports a more sustainable, less car-dependent campus.</li>
-      </ul>
-      <h2>Interpreting MRT for Thermal Comfort</h2>
       <p>
-        Thermal comfort is subjective and varies from person to person. However, routes with lower MRT values are generally more comfortable in hot conditions, as they reduce the heat load on individuals. Our system uses MRT data to suggest routes that strike a balance between being short and thermally comfortable.
+        Fletcher is a Computer Science student with a passion for finding long-term equitable solutions to the immediate global challenges we face today. His goal is to build a sustainable future for our planet by addressing climate change through the application of innovative technology.
       </p>
-      <p>[Discrepancy between air temperature and MRT]</p>
-      <h2>The SOLWEIG Model</h2>
+      <h3>Devbrat Hariyani</h3>
       <p>
-        Our project utilizes the SOLWEIG model to simulate and analyze the spatial variations of MRT throughout the ASU campus. This model helps us understand how different urban geometries and surface materials affect thermal comfort. Note that we do not require users to understand the model setup but rather provide this information for transparency.
+        Bachelor's Student, Computer Science and Sustainability, SCAI, Arizona State University
       </p>
-      <h2>User Guide</h2>
-      <ol>
-        <li>Accessing Routes: Navigate to our system through the Cool Routes website. Enter your starting point and destination within the ASU campus.</li>
-        <li>Route Selection: The system will present you with route options, highlighting the recommended route based on optimal thermal comfort.</li>
-        <li>Understanding Elements: Hover over or click on various interface elements for tooltips and detailed explanations on how to make the most of Cool Routes.</li>
-      </ol>
-      <h2>Feedback</h2>
       <p>
-        Your feedback is invaluable to us. Please share your experiences, suggestions, or any issues encountered while using the Cool Routes system. Together, we can make ASU a cooler, more walkable campus for everyone.
+        Devbrat is passionate about using algorithms to create sustainable systems. His current research focuses on using machine learning algorithms to predict droughts. He is interested in combating climate change by working on innovative technologies and solutions.
       </p>
+      <h3>Ariane Middel</h3>
+      <p>
+        School of Arts, Media and Engineering, Herberger Institute for Design and the Arts (AME) | School of Computing and Augmented Intelligence (SCAI), Arizona State University
+      </p>
+      <p>
+        Ariane Middel’s research interests lie in the interdisciplinary field of urban climate with focus on climate-sensitive urban form, design, landscapes, and infrastructure in the face of extreme heat and climatic uncertainty.
+      </p>
+
+      <h2>Past Team Members</h2>
+      <h3>Raj Bobra</h3>
+      <h3>Kit Donnelly</h3>
+      <h3>Niklas Doyle</h3>
+      
     </div>
   )
 }
