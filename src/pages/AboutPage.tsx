@@ -39,7 +39,7 @@ export default function InfoPage() {
       <h2>Past Team Members</h2>
       <h3>Raj Bobra</h3>
       <h3>Kit Donnelly</h3>
-      <h3>Nick</h3>
+      <h3>Niklas Doyle</h3>
       
     </div>
   )
